@@ -10,6 +10,8 @@ project(collision_avoidance)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  message_generation
+  laser_geometry
 )
 
 ## System dependencies are found with CMake's conventions
@@ -67,10 +69,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -102,10 +104,10 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES collision_avoidance
-#  CATKIN_DEPENDS roscpp std_msgs
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES collision_avoidance
+  CATKIN_DEPENDS roscpp std_msgs
+  DEPENDS system_lib
 )
 
 ###########
@@ -203,3 +205,7 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(avoider src/avoider.cpp)
+target_link_libraries(avoider ${catkin_LIBRARIES})
+add_dependencies(avoider collision_avoidance_generate_messages_cpp)
