@@ -12,16 +12,13 @@
 
 ros::Publisher vel;
 bool cmdReceived = false;
-//bool processing = false;
+
 geometry_msgs::Twist vel_received;
 
 
 
 void star_cmd_vel_callback(const geometry_msgs::Twist::ConstPtr& msg)
-{
- // ROS_INFO("Received: [x:%f,y:%f,z:%f]", msg->linear.x, msg->linear.y,msg->linear.z);
-  //if(processing || cmdReceived) return;
-  
+{ 
   cmdReceived = true;
   vel_received = *msg;
 }
@@ -30,16 +27,17 @@ void laser_cmd_vel_callback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
   if (!cmdReceived ) return;
   cmdReceived = false;
- // processing = true;
+
 
   tf::TransformListener listener;
   laser_geometry::LaserProjection projector;
   sensor_msgs::PointCloud cloud;
 
-
+ //obstacle points from laser scan
   projector.transformLaserScanToPointCloud("base_laser_link", *msg, cloud, listener);
   
   tf::StampedTransform transform_obstacle;
+  //calculate the transform in order to obtain obstacle points respect to the robot
     try{
         listener.waitForTransform("base_footprint", "base_laser_link", ros::Time(0), ros::Duration(1.0));
         listener.lookupTransform("base_footprint", "base_laser_link", ros::Time(0), transform_obstacle);
@@ -48,24 +46,19 @@ void laser_cmd_vel_callback(const sensor_msgs::LaserScan::ConstPtr& msg)
     catch(tf::TransformException &ex){
         ROS_ERROR("%s", ex.what());
        // ros::Duration(1.0).sleep();
-      // processing = false;
         return;
     }
-
+//transform in 2d matrix
 Eigen::Isometry2f laser_transform = convertPose2D(transform_obstacle);
 Eigen::Vector2f p;
 
 p(0) = cloud.points[540].x;
 p(1) = cloud.points[540].y;  
 
-//ROS_INFO("p(0) %f",p(0));
-//ROS_INFO("p(1) %f",p(1));
 
 auto obstacle_pos = laser_transform * p;
 float obstacle_dist = sqrt(obstacle_pos(0)*obstacle_pos(0)+obstacle_pos(1)*obstacle_pos(1));
-//ROS_INFO("obstacle_dist %f",obstacle_dist);
-//ROS_INFO("obstacle_pos(0) %f",obstacle_pos(0));
-//ROS_INFO("obstacle_pos(1) %f",obstacle_pos(1));
+
 
 
 if(obstacle_dist < 0.6){
@@ -88,13 +81,12 @@ vel.publish(msg_send);
   vel.publish(vel_received);
 }
   
-//processing = false;
   
 }
 
 int main(int argc, char **argv)
 {
- 
+
   ros::init(argc, argv, "collision_avoidance");
 
   
