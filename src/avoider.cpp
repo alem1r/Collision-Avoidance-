@@ -94,7 +94,7 @@ vel.publish(msg_send);
 
 int main(int argc, char **argv)
 {
-  ROS_INFO("Neural Network is running...");
+ 
   ros::init(argc, argv, "collision_avoidance");
 
   
