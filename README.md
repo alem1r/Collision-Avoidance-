@@ -19,7 +19,7 @@ In order to test this node use a stage ros and a controller node like `teleop_tw
 First, run the collision_avoidance node with:
 
 ```
-rosrun rosrun collision_avoidance avoider
+rosrun collision_avoidance avoider
 ```
 Second, the controller with:
 ```
